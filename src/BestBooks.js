@@ -1,30 +1,29 @@
-import React from 'react';
-import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Carousel from 'react-bootstrap/Carousel';
+import React from "react";
+import axios from "axios";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Carousel from "react-bootstrap/Carousel";
 
-
-const BOOKSERVER = process.env.REACT_APP_SERVER;
+// const BOOKSERVER = process.env.REACT_APP_SERVER;
+const BOOKSERVER = "http://localhost:3001";
 
 class BestBooks extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      books: []
-    }
+      books: [],
+    };
   }
 
   componentDidMount() {
-    let booksReq = `${BOOKSERVER}/books`;
+    let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
 
     // if (this.state.books) {
     //   // booksReq += `?email=${this.state.title}`;
     // }
 
     try {
-      const response = axios.get(booksReq);
-      this.setState({ books: response.data });
-      console.log(this.state.books);
+      axios.get(booksReq).then((res) => this.setState({ books: res.data }));
+      // console.log(response.config, this.state.books);
     } catch (error) {
       console.log(error);
     }
@@ -43,29 +42,43 @@ class BestBooks extends React.Component {
     //     `
     //   return carouselItem;
     // })}
-    
 
     return (
       <>
         <h2>My Essential Lifelong Learning &amp; Formation Shelf</h2>
 
-        {/* {this.state.books.length ? (
-          <Carousel fade>
+        {this.state.books ? (
+          <Carousel
+            style={{
+              height: "500px",
+              backgroundColor: "red",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             {this.state.books.map((book, i) => {
+              console.log(book);
               return (
-                <Carousel.Item key={i}>
-                  <Carousel.Caption>
-                    <h3>{book.title}</h3>
-                    <p>{book.description}</p>
-                  </Carousel.Caption>
-                </Carousel.Item>)
+                <Carousel.Item
+                  style={{
+                    fontSize: "1rem",
+                    color: "blue",
+                    textAlign: "center",
+                  }}
+                  key={i}
+                >
+                  <h3>Book Title: {book.title}</h3>
+                  <p>{book.description}</p>
+                </Carousel.Item>
+              );
             })}
           </Carousel>
         ) : (
           <h3>No Books Found :(</h3>
-        )} */}
+        )}
       </>
-    )
+    );
   }
 }
 
