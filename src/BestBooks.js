@@ -2,6 +2,7 @@ import React from "react";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Carousel from "react-bootstrap/Carousel";
+import Button from "react-bootstrap/Button";
 
 // const BOOKSERVER = process.env.REACT_APP_SERVER;
 const BOOKSERVER = "http://localhost:3001";
@@ -70,6 +71,7 @@ class BestBooks extends React.Component {
                 >
                   <h3>Book Title: {book.title}</h3>
                   <p>{book.description}</p>
+                  <Button onClick={() => this.props.onDelete(book)}>Delete Me!</Button>
                 </Carousel.Item>
               );
             })}

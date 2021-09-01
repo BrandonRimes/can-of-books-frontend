@@ -48,6 +48,20 @@ class App extends React.Component {
     this.setState({ books });
   };
 
+  handleDeleteBook = async (bookToDelete) => {
+    try {
+      const bookReq = `${BOOKSERVER}/books/${bookToDelete._id}`;
+    await axios.delete(bookReq);
+    // TODO: error checking
+    const books = this.state.books.filter(candidate => candidate._id !== bookToDelete._id);
+
+    this.setState({ books });
+    } catch (error) {
+      console.error(error);
+    }
+    
+  };
+
   componentDidMount() {
     let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
 
@@ -71,7 +85,7 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/">
               <CreateBook onCreate={this.handleCreate}/>
-              <BestBooks books={this.state.books}/>
+              <BestBooks books={this.state.books} onDelete={this.handleDeleteBook}/>
               {/* TODO: if the user is logged in, render the `BestBooks` component, if they are not, render the `Login` component */}
             </Route>
             <Route path="/Profile">
