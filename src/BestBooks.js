@@ -7,31 +7,31 @@ import Carousel from "react-bootstrap/Carousel";
 const BOOKSERVER = "http://localhost:3001";
 
 class BestBooks extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      books: [],
-    };
-  }
+  // constructor(props) {
+  //   super(props);
+  //   this.state = {
+  //     books: [],
+  //   };
+  // }
 
-  componentDidMount() {
-    let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
+  // componentDidMount() {
+  //   let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
 
-    // if (this.state.books) {
-    //   // booksReq += `?email=${this.state.title}`;
-    // }
+  //   // if (this.props.books) {
+  //   //   // booksReq += `?email=${this.state.title}`;
+  //   // }
 
-    try {
-      axios.get(booksReq).then((res) => this.setState({ books: res.data }));
-      // console.log(response.config, this.state.books);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  //   try {
+  //     axios.get(booksReq).then((res) => this.setState({ books: res.data }));
+  //     // console.log(response.config, this.props.books);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
 
   render() {
-    // {this.state.books.length &&
-    //   const carousel = this.state.books.map((book, i) => {
+    // {this.props.books.length &&
+    //   const carousel = this.props.books.map((book, i) => {
     //   let carouselItem = `
     //     <Carousel.Item key=${i}>
     //       <Carousel.Caption>
@@ -47,7 +47,7 @@ class BestBooks extends React.Component {
       <>
         <h2>My Essential Lifelong Learning &amp; Formation Shelf</h2>
 
-        {this.state.books ? (
+        {this.props.books ? (
           <Carousel
             style={{
               height: "500px",
@@ -57,7 +57,7 @@ class BestBooks extends React.Component {
               alignItems: "center",
             }}
           >
-            {this.state.books.map((book, i) => {
+            {this.props.books.map((book, i) => {
               console.log(book);
               return (
                 <Carousel.Item
