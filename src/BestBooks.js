@@ -1,48 +1,16 @@
 import React from "react";
-import axios from "axios";
+// import axios from "axios";
+import UpdateBook from "./UpdateBook";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Carousel from "react-bootstrap/Carousel";
 import Button from "react-bootstrap/Button";
 
 // const BOOKSERVER = process.env.REACT_APP_SERVER;
-const BOOKSERVER = "http://localhost:3001";
+// const BOOKSERVER = "http://localhost:3001";
 
 class BestBooks extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.state = {
-  //     books: [],
-  //   };
-  // }
-
-  // componentDidMount() {
-  //   let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
-
-  //   // if (this.props.books) {
-  //   //   // booksReq += `?email=${this.state.title}`;
-  //   // }
-
-  //   try {
-  //     axios.get(booksReq).then((res) => this.setState({ books: res.data }));
-  //     // console.log(response.config, this.props.books);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
 
   render() {
-    // {this.props.books.length &&
-    //   const carousel = this.props.books.map((book, i) => {
-    //   let carouselItem = `
-    //     <Carousel.Item key=${i}>
-    //       <Carousel.Caption>
-    //         <h3>${book.title}</h3>
-    //         <p>${book.description}</p>
-    //       </Carousel.Caption>
-    //     </Carousel.Item>
-    //     `
-    //   return carouselItem;
-    // })}
 
     return (
       <>
@@ -71,6 +39,7 @@ class BestBooks extends React.Component {
                 >
                   <h3>Book Title: {book.title}</h3>
                   <p>{book.description}</p>
+                  <Button onClick={() => this.props.handleModal(book)}>Update Me!</Button>
                   <Button onClick={() => this.props.onDelete(book)}>Delete Me!</Button>
                 </Carousel.Item>
               );

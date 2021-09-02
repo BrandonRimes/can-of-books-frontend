@@ -6,6 +6,7 @@ import Header from './Header';
 import Footer from './Footer';
 import Profile from './Profile';
 import CreateBook from './CreateBook';
+import UpdateBook from './UpdateBook';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -25,6 +26,8 @@ class App extends React.Component {
     this.state = {
       user: null,
       books: [],
+      bookToUpdate: null,
+      show: false,
     }
   }
 
@@ -51,16 +54,42 @@ class App extends React.Component {
   handleDeleteBook = async (bookToDelete) => {
     try {
       const bookReq = `${BOOKSERVER}/books/${bookToDelete._id}`;
-    await axios.delete(bookReq);
-    // TODO: error checking
-    const books = this.state.books.filter(candidate => candidate._id !== bookToDelete._id);
+      await axios.delete(bookReq);
+      const books = this.state.books.filter(candidate => candidate._id !== bookToDelete._id);
 
-    this.setState({ books });
+      this.setState({ books });
     } catch (error) {
       console.error(error);
     }
     
   };
+
+  handleUpdateBook = async (bookToUpdate) => {
+    try {
+      console.log('bookToUpdate', bookToUpdate);
+      const bookReq = `${BOOKSERVER}/books/${bookToUpdate._id}`;
+      const updatedBook = await axios.put(bookReq, bookToUpdate);
+      console.log("updatedBook.data", updatedBook.data);
+      const books = this.state.books.map(currentBook => {
+        console.log("currentBook.title", currentBook.title);
+        return currentBook._id === updatedBook.data._id ? updatedBook.data : currentBook;
+      });
+      // console.log('books:',books);
+      // this.setState({ bookToUpdate });
+      this.setState({ books });
+      this.setState({ show: false });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  handleModal = (bookToUpdate) => {
+    if(this.state.show) {
+      this.setState({ show: false });
+    } else {
+      this.setState({ show: true, bookToUpdate});
+    }
+  }
 
   componentDidMount() {
     let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
@@ -85,7 +114,8 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/">
               <CreateBook onCreate={this.handleCreate}/>
-              <BestBooks books={this.state.books} onDelete={this.handleDeleteBook}/>
+              <UpdateBook show={this.state.show} book={this.state.bookToUpdate} onUpdate={this.handleUpdateBook} handleModal={this.handleModal}/>
+              <BestBooks books={this.state.books} onDelete={this.handleDeleteBook} handleModal={this.handleModal} show={this.state.show}/>
               {/* TODO: if the user is logged in, render the `BestBooks` component, if they are not, render the `Login` component */}
             </Route>
             <Route path="/Profile">
