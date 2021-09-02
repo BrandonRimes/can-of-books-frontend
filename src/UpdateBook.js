@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
-class CreateBook extends Component {
+class UpdateBook extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -14,14 +14,15 @@ class CreateBook extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const bookInfo = {
+    console.log('handle submit', e.target.formTitle.value);
+    this.props.onUpdate({
+      _id: this.props.book._id,
       title: e.target.formTitle.value,
       description: e.target.formDescription.value,
       status: e.target.formStatus.checked,
       email: e.target.formEmail.value,
-    }
-    this.props.onCreate(bookInfo);
-    this.handleModal();
+    });
+    this.handleModal();  
   }
 
   handleModal = () => {
@@ -33,26 +34,26 @@ class CreateBook extends Component {
   }
 
   render() {
+    if (!this.props.book) return null;
     return (
       <>
-      <Button onClick={this.handleModal}><h1>Create A Book!</h1></Button>
-      <Modal show={this.state.showModal} onHide={this.handleModal}>
+      <Modal show={this.props.show} onHide={this.props.handleModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Create A Book</Modal.Title>
+          <Modal.Title>Update {this.props.book.title}</Modal.Title>
         </Modal.Header>
         <Form onSubmit={this.handleSubmit}>
           <Form.Group className="mb-3" controlId="formTitle" >
-            <Form.Control type="text" placeholder="Book Title e.g. The Chronicles of Narnia" required/>
+            <Form.Control type="text" placeholder="Book Title e.g. The Chronicles of Narnia" defaultValue={this.props.book.title}/>
           </Form.Group>
           <Form.Group className="mb-3" controlId="formDescription">
             <Form.Label>Book Description</Form.Label>
-            <Form.Control as="textarea" rows={2} />
+            <Form.Control as="textarea" rows={2} defaultValue={this.props.book.description}/>
           </Form.Group>
           <Form.Group className="mb-3" controlId="formStatus">
-            <Form.Check type="checkbox" label="Read" />
+            <Form.Check type="checkbox" label="Read" defaultChecked={this.props.book.status}/>
           </Form.Group>
           <Form.Group className="mb-3" controlId="formEmail">
-            <Form.Control type="email" placeholder="Email Address" required/>
+            <Form.Control type="email" placeholder="Email Address" defaultValue={this.props.book.email}/>
             <Form.Text className="text-muted">
               We'll never share your email with anyone else.
             </Form.Text>
@@ -67,4 +68,4 @@ class CreateBook extends Component {
   }
 }
 
-export default CreateBook;
+export default UpdateBook;
