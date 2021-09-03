@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from "axios";
+import { withAuth0 } from '@auth0/auth0-react';
 
 import BestBooks from './BestBooks';
 import Header from './Header';
@@ -7,6 +8,7 @@ import Footer from './Footer';
 import Profile from './Profile';
 import CreateBook from './CreateBook';
 import UpdateBook from './UpdateBook';
+import Login from './Login';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {
@@ -31,6 +33,10 @@ class App extends React.Component {
     }
   }
 
+  updateState = (data) => {
+    this.setState({ books: data })
+  }
+
   loginHandler = (user) => {
     this.setState({
       user,
@@ -44,43 +50,107 @@ class App extends React.Component {
   }
 
   handleCreate = async (bookInfo) => {
-    const bookReq = `${BOOKSERVER}/books`;
-    const bookRes = await axios.post(bookReq, bookInfo);
-    const newBook = bookRes.data;
-    const books = [...this.state.books, newBook];
-    this.setState({ books });
+    this.props.auth0.getIdTokenClaims()
+    .then(async res => {
+      const jwt = res.__raw;
+
+      const config = {
+        headers: { "Authorization": `Bearer ${jwt}` },
+        data: {
+          email: this.props.auth0.user.email,
+          title: bookInfo.title,
+          description: bookInfo.description,
+          status: bookInfo.status,
+        },
+        baseURL: BOOKSERVER,
+        url: '/books',
+        method: 'post'
+      }
+
+      const bookRes = await axios(config);
+      const newBook = bookRes.data;
+      const books = [...this.state.books, newBook];
+      console.log('test');
+      this.setState({ books: books });
+    })
+    .catch(err => console.error(err));
+    // const bookReq = `${BOOKSERVER}/books`;
+    // const bookRes = await axios.post(bookReq, bookInfo);
+    // const newBook = bookRes.data;
+    // const books = [...this.state.books, newBook];
+    // this.setState({ books });
   };
 
-  handleDeleteBook = async (bookToDelete) => {
-    try {
-      const bookReq = `${BOOKSERVER}/books/${bookToDelete._id}`;
-      await axios.delete(bookReq);
-      const books = this.state.books.filter(candidate => candidate._id !== bookToDelete._id);
+  handleDeleteBook = async (id) => {
+    // try {
+    //   const bookReq = `${BOOKSERVER}/books/${bookToDelete._id}`;
+    //   await axios.delete(bookReq);
+    //   const books = this.state.books.filter(candidate => candidate._id !== bookToDelete._id);
 
-      this.setState({ books });
-    } catch (error) {
-      console.error(error);
-    }
-    
+    //   this.setState({ books });
+    // } catch (error) {
+    //   console.error(error);
+    // }
+    this.props.auth0.getIdTokenClaims()
+      .then(async res => {
+        const jwt = res.__raw;
+        // const id = bookToDelete._id;
+        let newBooks = this.state.books;
+        newBooks = newBooks.filter((book) => book._id !== id);
+        this.setState({ books: newBooks });
+
+        const config = {
+          params: { email: this.props.auth0.user.email },
+          headers: { "Authorization": `Bearer ${jwt}` },
+          method: 'delete',
+          baseURL: BOOKSERVER,
+          url: `/books/${id}`
+        }
+
+        await axios(config);
+      })
+      .catch(error => console.error(error));
   };
 
   handleUpdateBook = async (bookToUpdate) => {
-    try {
-      console.log('bookToUpdate', bookToUpdate);
-      const bookReq = `${BOOKSERVER}/books/${bookToUpdate._id}`;
-      const updatedBook = await axios.put(bookReq, bookToUpdate);
-      console.log("updatedBook.data", updatedBook.data);
+    this.props.auth0.getIdTokenClaims()
+    .then(async res => {
+      const jwt = res.__raw;
+
+      const config = {
+        headers: { "Authorization": `Bearer ${jwt}` },
+        data: {
+          email: this.props.auth0.user.email,
+          title: bookToUpdate.title,
+          description: bookToUpdate.description,
+          status: bookToUpdate.status,
+        },
+        method: 'put',
+        baseURL: BOOKSERVER,
+        url: `/books/${bookToUpdate._id}`
+      }
+
+      const updatedBook = await axios(config);
       const books = this.state.books.map(currentBook => {
-        console.log("currentBook.title", currentBook.title);
         return currentBook._id === updatedBook.data._id ? updatedBook.data : currentBook;
       });
-      // console.log('books:',books);
-      // this.setState({ bookToUpdate });
+      this.setState({ bookToUpdate });
       this.setState({ books });
       this.setState({ show: false });
-    } catch (error) {
-      console.error(error);
-    }
+    })
+    .catch(error => console.error(error));
+    // try {
+    //   const bookReq = `${BOOKSERVER}/books/${bookToUpdate._id}`;
+    //   const updatedBook = await axios.put(bookReq, bookToUpdate);
+    //   const books = this.state.books.map(currentBook => {
+    //     return currentBook._id === updatedBook.data._id ? updatedBook.data : currentBook;
+    //   });
+    //   // this.setState({ bookToUpdate });
+    //   this.setState({ books });
+    //   this.setState({ show: false });
+    // } catch (error) {
+    //   console.error(error);
+    // }
   }
 
   handleModal = (bookToUpdate) => {
@@ -91,15 +161,31 @@ class App extends React.Component {
     }
   }
 
-  componentDidMount() {
-    let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
+  // componentDidMount() {
+  //   // let booksReq = `${BOOKSERVER}/books?email=chris@y.net`;
 
-    try {
-      axios.get(booksReq).then((res) => this.setState({ books: res.data }));
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  //   // try {
+  //   //   axios.get(booksReq).then((res) => this.setState({ books: res.data }));
+  //   // } catch (error) {
+  //   //   console.log(error);
+  //   // }
+  //   this.props.auth0.getIdTokenClaims()
+  //     .then(async res => {
+  //       const jwt = res.__raw;
+
+  //       const config = {
+  //         headers: { "Authorization": `Bearer ${jwt}` },
+  //         baseURL: BOOKSERVER,
+  //         url: '/books',
+  //         params: { email: this.props.auth0.user.email },
+  //         method: 'get'
+  //       }
+  //       const booksRes = await axios(config);
+  //       this.setState({ books: booksRes.data });
+  //       console.log('booksRes.data',booksRes.data)
+  //     })
+  //     .catch(error => console.error(error));
+  // }
 
   render() {
     return (
@@ -113,14 +199,16 @@ class App extends React.Component {
           <Header user={this.state.user} onLogout={this.logoutHandler} />
           <Switch>
             <Route exact path="/">
-              <CreateBook onCreate={this.handleCreate}/>
-              <UpdateBook show={this.state.show} book={this.state.bookToUpdate} onUpdate={this.handleUpdateBook} handleModal={this.handleModal}/>
-              <BestBooks books={this.state.books} onDelete={this.handleDeleteBook} handleModal={this.handleModal} show={this.state.show}/>
-              {/* TODO: if the user is logged in, render the `BestBooks` component, if they are not, render the `Login` component */}
+              {this.props.auth0.isAuthenticated ?
+              <>
+                <CreateBook onCreate={this.handleCreate}/>
+                <UpdateBook show={this.state.show} book={this.state.bookToUpdate} onUpdate={this.handleUpdateBook} handleModal={this.handleModal}/>
+                <BestBooks books={this.state.books} onDelete={this.handleDeleteBook} handleModal={this.handleModal} show={this.state.show} updateState={this.updateState}/>
+              </>
+              : <Login />}
             </Route>
             <Route path="/Profile">
               <Profile />
-            {/* TODO: add a route with a path of '/profile' that renders a `Profile` component */}
             </Route>
           </Switch>
           <Footer />
@@ -130,4 +218,4 @@ class App extends React.Component {
   }
 }
 
-export default App;
+export default withAuth0(App);
