@@ -20,6 +20,7 @@ class CreateBook extends Component {
       status: e.target.formStatus.checked,
       email: e.target.formEmail.value,
     }
+    console.log('bookInfo', bookInfo);
     this.props.onCreate(bookInfo);
     this.handleModal();
   }
